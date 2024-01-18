@@ -69,8 +69,12 @@ function buildMetadata(sample_id){
         let metadatalist = data.metadata
         let metadata = metadatalist.filter(element => element.id == sample_id)[0]
         // console.log(metadata)
+        
+        // Select the HTML element for metadata display
         let PANEL=d3.select("#sample-metadata")
         PANEL.html("")
+        
+        // Display each key-value pair from the metadata JSON object
         for (key in metadata){
             PANEL.append("h6").text(key.toUpperCase()+": "+metadata[key])
         }
