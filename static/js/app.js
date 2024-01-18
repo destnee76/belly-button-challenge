@@ -1,12 +1,5 @@
 // store URL souce
-const url = "https://2u-data-curriculum-team.s3.amazonaws.com/dataviz-classroom/v1.1/14-Interactive-Web-Visualizations/02-Homework/samples.json"
-
-// Create a horizontal bar chart with a dropdown menu to display the top 10 OTUs found in that individual.
-// Use sample_values as the values for the bar chart.
-// Use otu_ids as the labels for the bar chart.
-// Use otu_labels as the hovertext for the chart.
-
-
+let url = "https://2u-data-curriculum-team.s3.amazonaws.com/dataviz-classroom/v1.1/14-Interactive-Web-Visualizations/02-Homework/samples.json"
 
 // Initialize...Sample data
 function init() {
@@ -14,11 +7,12 @@ function init() {
     // fetch the JSON data
     d3.json(url).then(function (data) {
         console.log(data);
-        const names = data.names;
+        let names = data.names;
 
         for (let i = 0; i < names.length; i++) {
             dropdownMenu.append("option").text(names[i]).property("value", names[i])
         }
+        // Build the initial charts and metadata display for the first sample
         buildChart(names[0])
         buildMetadata(names[0])
         buildGaugeChart(names[0])
@@ -27,17 +21,20 @@ function init() {
 }
 init()
 
+// Build a horizontal bar chart and a bubble chart based on the selected sample
 function buildChart(sample_id) {
     d3.json(url).then(function (data) {
-        const samples = data.samples
-        const sample = samples.filter(element => element.id == sample_id)[0]
+        let samples = data.samples
+        let sample = samples.filter(element => element.id == sample_id)[0]
         console.log(sample)
-        //const otu_ids=sample.otu_ids.slice(0,10).map(otu_id=>"OTU "+otu_id).reverse()
-        const otu_ids=sample.otu_ids.slice(0,10).map(otu_id=>`OTU ${otu_id}`).reverse()
-        const otu_labels=sample.otu_labels.slice(0,10).reverse()
-        const sample_values=sample.sample_values.slice(0,10).reverse()
 
-        const trace={
+        //Extract data for the bar chart
+        let otu_ids=sample.otu_ids.slice(0,10).map(otu_id=>`OTU ${otu_id}`).reverse()
+        let otu_labels=sample.otu_labels.slice(0,10).reverse()
+        let sample_values=sample.sample_values.slice(0,10).reverse()
+
+        //Create trace bar chart
+        let trace={
             x:sample_values,
             y:otu_ids,
             text: otu_labels,
@@ -50,7 +47,8 @@ function buildChart(sample_id) {
         }
         Plotly.newPlot("bar",[trace])
 
-        const bubbletrace = {
+        //Create trace bubble chart
+        let bubbletrace = {
             x: sample.otu_ids,
             y: sample.sample_values,
             text: sample.otu_labels,
@@ -65,12 +63,13 @@ function buildChart(sample_id) {
     })
 }
 
+// Display metadata associated with the selected sample
 function buildMetadata(sample_id){
     d3.json(url).then(function (data) {
-        const metadatalist = data.metadata
-        const metadata = metadatalist.filter(element => element.id == sample_id)[0]
+        let metadatalist = data.metadata
+        let metadata = metadatalist.filter(element => element.id == sample_id)[0]
         // console.log(metadata)
-        const PANEL=d3.select("#sample-metadata")
+        let PANEL=d3.select("#sample-metadata")
         PANEL.html("")
         for (key in metadata){
             PANEL.append("h6").text(key.toUpperCase()+": "+metadata[key])
@@ -78,12 +77,14 @@ function buildMetadata(sample_id){
     })
 }
 
+// Build a gauge chart
 function buildGaugeChart(sample_id) {
     d3.json(url).then(function (data) {
-        const metadata = data.metadata.find(element => element.id == sample_id);
-        const washFrequency = metadata ? metadata.wfreq : 0;
+        let metadata = data.metadata.find(element => element.id == sample_id);
+        let washFrequency = metadata ? metadata.wfreq : 0;
 
-        const gaugeTrace = {
+        // Create trace for the gauge chart
+        let gaugeTrace = {
             value: washFrequency,
             title: { text: "<b>Belly Button Washing Frequency</b><br>Scrubs per Week" },
             type: "indicator",
@@ -98,7 +99,7 @@ function buildGaugeChart(sample_id) {
     });
 }
 
-// Display each key-value pair from the metadata JSON object somewhere on the page
+// Update charts and metadata when a new sample is selected
 function optionChanged(newSample){
     buildChart(newSample)
     buildMetadata(newSample)
